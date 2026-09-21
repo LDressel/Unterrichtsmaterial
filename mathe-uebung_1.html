@@ -1,0 +1,1391 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, viewport-fit=cover">
+<title>Matheübungen im Gallischen Dorf</title>
+<style>
+  :root {
+    /* Farbpalette – warme, gallische Dorf-Töne */
+    --hintergrund: #FBF1D9;
+    --hintergrund-2: #F5E6C4;
+    --karte: #FFFCF4;
+    --text: #3B2E20;
+    --primaer: #3F7D3A;
+    --primaer-dunkel: #2E5C2A;
+    --sekundaer: #8C7A5B;
+    --sekundaer-hell: #EFE3C6;
+    --gold: #E3A93D;
+    --schatten: rgba(59, 46, 32, 0.18);
+
+    --stein: #C9C2B3;
+    --stein-dunkel: #8B8272;
+    --eber-braun: #B97D4B;
+    --eber-dunkel: #6E4423;
+    --schild-gold: #E8B94A;
+    --schild-dunkel: #8A5A22;
+    --huette-wand: #E9C88B;
+    --huette-dach: #A9542F;
+    --huette-dunkel: #6E3B1E;
+    --huette-tuer: #6E3B1E;
+    --kranz-gruen: #4C7A3D;
+    --muenze-gold: #E8B94A;
+    --muenze-gold-dunkel: #8A5A22;
+    --muenze-silber: #D8D3C4;
+    --muenze-silber-dunkel: #8B8272;
+    --schein-farbe: #8FBF8A;
+    --schein-dunkel: #33552F;
+    --uhr-flaeche: #FFFCF4;
+    --uhr-rand: #8A5A22;
+    --uhr-ziffern: #3B2E20;
+    --uhr-zeiger: #B33F22;
+    --uhr-minuten: #3F7D3A;
+
+    --figur-haut: #F1C89A;
+    --figur-haut-dunkel: #C99B6B;
+    --figur-kontur: #3B2E20;
+    --figur-guertel: #6E4423;
+    --figur-holz: #8A5A22;
+    --zubehoer-bau: #D9A441;
+    --zubehoer-korb: #C9974B;
+    --tunika-bau: #4C7A3D;
+    --tunika-jagd: #96522E;
+    --tunika-handel: #3D6EA6;
+    --tunika-schatz: #C99A3D;
+    --tunika-zeit: #4A7A78;
+    --tunika-dorf: #C1703F;
+    --tunika-rat: #6C4E8C;
+  }
+
+  * {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+  }
+
+  body {
+    font-family: "Comic Sans MS", "Comic Neue", "Trebuchet MS", Verdana, sans-serif;
+    background:
+      radial-gradient(circle at 15% 10%, var(--hintergrund-2) 0%, transparent 45%),
+      radial-gradient(circle at 85% 85%, var(--hintergrund-2) 0%, transparent 45%),
+      var(--hintergrund);
+    color: var(--text);
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    justify-content: center;
+    padding: 24px 16px calc(48px + env(safe-area-inset-bottom));
+    -webkit-text-size-adjust: 100%;
+    touch-action: manipulation;
+  }
+
+  #app {
+    width: 100%;
+    max-width: 640px;
+    outline: none;
+  }
+
+  /* Größere Grundschrift auf Tablets wie dem iPad, mehr Platz pro Bildschirm */
+  @media (min-width: 700px) {
+    html { font-size: 19px; }
+    #app { max-width: 720px; }
+  }
+
+  .lade-hinweis {
+    text-align: center;
+    padding-top: 60px;
+    color: var(--sekundaer);
+  }
+  .lade-hinweis p {
+    font-size: 1.3rem;
+  }
+  .lade-hinweis-klein {
+    font-size: 1rem !important;
+    max-width: 420px;
+    margin: 10px auto 0 !important;
+  }
+
+  .js-hinweis {
+    text-align: center;
+    padding: 60px 24px;
+    font-family: Verdana, sans-serif;
+    font-size: 1.2rem;
+    color: var(--text);
+  }
+
+  .screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    animation: einblenden 0.35s ease;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .screen { animation: none; }
+    * { scroll-behavior: auto !important; }
+  }
+
+  @keyframes einblenden {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  h1 {
+    font-size: 2.1rem;
+    line-height: 1.25;
+    margin: 8px 0 4px;
+  }
+
+  p {
+    font-size: 1.35rem;
+    line-height: 1.5;
+    margin: 6px 0;
+  }
+
+  /* --- Schildmuster-Rahmen, als dekoratives Band --- */
+  .schildband {
+    height: 14px;
+    width: 100%;
+    max-width: 640px;
+    margin: 0 auto 18px;
+    background-image: repeating-linear-gradient(
+      -45deg,
+      var(--gold) 0 10px,
+      var(--sekundaer) 10px 20px
+    );
+    border-radius: 8px;
+    opacity: 0.85;
+  }
+
+  /* --- Startbildschirm --- */
+  .start-screen .dorf-illustration {
+    width: min(90%, 420px);
+    margin: 4px auto 8px;
+  }
+  .start-screen svg { width: 100%; height: auto; display: block; }
+
+  .start-text {
+    color: var(--sekundaer);
+    margin-bottom: 12px;
+  }
+
+  .block-liste {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    width: 100%;
+    margin-top: 12px;
+  }
+
+  .block-kachel {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    background: var(--karte);
+    border: 3px solid var(--sekundaer-hell);
+    border-radius: 22px;
+    padding: 14px 20px;
+    font-family: inherit;
+    cursor: pointer;
+    box-shadow: 0 6px 0 var(--schatten);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    text-align: left;
+  }
+  .block-kachel:hover,
+  .block-kachel:focus-visible {
+    transform: translateY(-2px);
+    outline: 4px solid var(--gold);
+    outline-offset: 2px;
+  }
+  .block-kachel:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 var(--schatten);
+  }
+
+  .block-icon {
+    width: 56px;
+    height: 56px;
+    flex-shrink: 0;
+  }
+  .block-icon svg { width: 100%; height: 100%; display: block; }
+
+  .block-kachel-text {
+    display: flex;
+    flex-direction: column;
+  }
+  .block-kachel-titel {
+    font-size: 1.4rem;
+    font-weight: bold;
+  }
+  .block-kachel-untertitel {
+    font-size: 1.1rem;
+    color: var(--sekundaer);
+  }
+
+  /* --- Sprechblase für Merksätze --- */
+  .sprechblase {
+    position: relative;
+    background: var(--karte);
+    border: 3px solid var(--gold);
+    border-radius: 24px;
+    padding: 18px 24px;
+    margin: 6px 0 18px;
+    max-width: 480px;
+  }
+  .sprechblase::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -18px;
+    transform: translateX(-50%);
+    border-width: 18px 14px 0 14px;
+    border-style: solid;
+    border-color: var(--gold) transparent transparent transparent;
+  }
+  .sprechblase p {
+    margin: 0;
+    font-size: 1.4rem;
+  }
+
+  .intro-icon {
+    width: 130px;
+    height: 130px;
+    margin: 6px 0;
+  }
+  .intro-icon svg { width: 100%; height: 100%; display: block; }
+
+  .intro-untertitel {
+    color: var(--sekundaer);
+    margin-top: 0;
+  }
+  .intro-anzahl {
+    font-size: 1.15rem;
+    color: var(--sekundaer);
+  }
+
+  /* --- Aufgabenbildschirm --- */
+  .fortschritt-bereich {
+    width: 100%;
+    margin-bottom: 18px;
+  }
+  .fortschritt-text {
+    font-size: 1.3rem;
+    font-weight: bold;
+    margin-bottom: 8px;
+  }
+  .fortschritt-balken {
+    width: 100%;
+    height: 20px;
+    background: var(--sekundaer-hell);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px solid var(--sekundaer);
+  }
+  .fortschritt-fuellung {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), var(--primaer));
+    border-radius: 12px 0 0 12px;
+    transition: width 0.35s ease;
+  }
+
+  .aufgaben-karte {
+    width: 100%;
+    background: var(--karte);
+    border: 3px solid var(--sekundaer-hell);
+    border-radius: 28px;
+    padding: 32px 24px;
+    box-shadow: 0 8px 0 var(--schatten);
+    margin-bottom: 22px;
+  }
+
+  .aufgaben-text {
+    font-size: 2.4rem;
+    font-weight: bold;
+    line-height: 1.5;
+    margin: 0 0 20px;
+  }
+  .aufgaben-text .zeile {
+    display: block;
+  }
+
+  .loesung-box {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    background: var(--sekundaer-hell);
+    border: 3px solid var(--primaer);
+    border-radius: 18px;
+    padding: 14px 28px;
+    margin-top: 8px;
+  }
+  .loesung-label {
+    font-size: 1.05rem;
+    color: var(--sekundaer);
+  }
+  .loesung-wert {
+    font-size: 2.4rem;
+    font-weight: bold;
+    color: var(--primaer-dunkel);
+  }
+
+  /* --- Buttons --- */
+  .knopf {
+    font-family: inherit;
+    font-size: 1.35rem;
+    font-weight: bold;
+    padding: 18px 28px;
+    border-radius: 20px;
+    border: none;
+    cursor: pointer;
+    min-height: 64px;
+    min-width: 150px;
+    box-shadow: 0 6px 0 var(--schatten);
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+  }
+  .knopf:active {
+    transform: translateY(4px);
+    box-shadow: 0 2px 0 var(--schatten);
+  }
+  .knopf:focus-visible {
+    outline: 4px solid var(--gold);
+    outline-offset: 3px;
+  }
+  .knopf[disabled] {
+    opacity: 0.4;
+    cursor: default;
+    box-shadow: none;
+  }
+  .knopf[disabled]:active {
+    transform: none;
+  }
+
+  .knopf-primaer {
+    background: var(--primaer);
+    color: #fff;
+  }
+  .knopf-sekundaer {
+    background: var(--sekundaer-hell);
+    color: var(--text);
+    border: 3px solid var(--sekundaer);
+  }
+  .knopf-loesung {
+    background: var(--gold);
+    color: #3B2E20;
+    margin-top: 4px;
+  }
+
+  .knopf-reihe {
+    display: flex;
+    gap: 16px;
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .knopf-reihe .knopf {
+    flex: 1 1 150px;
+  }
+
+  /* --- Blockende --- */
+  .diplom-karte {
+    background: var(--karte);
+    border: 4px double var(--gold);
+    border-radius: 30px;
+    padding: 28px 26px;
+    max-width: 460px;
+    margin-bottom: 22px;
+    box-shadow: 0 8px 0 var(--schatten);
+  }
+  .diplom-kranz {
+    width: 160px;
+    margin: 0 auto 10px;
+  }
+  .diplom-kranz svg { width: 100%; height: auto; display: block; }
+  .diplom-text {
+    color: var(--sekundaer);
+  }
+  .lob-text {
+    font-weight: bold;
+    color: var(--primaer-dunkel);
+    font-size: 1.5rem;
+  }
+
+
+  /* --- Geld-Symbole --- */
+  .geld-reihe {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+  .geld-symbol {
+    display: inline-block;
+    width: 84px;
+  }
+  .geld-symbol svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* --- Uhr-Illustration --- */
+  .uhr-illustration {
+    width: min(70%, 220px);
+    margin: 4px auto 16px;
+  }
+  .uhr-illustration svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .frage-satz {
+    font-size: 1.7rem;
+    font-weight: bold;
+    margin: 0;
+  }
+
+  /* --- Geschichten-Karte auf dem Einführungsbildschirm --- */
+  .geschichte-karte {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    background: var(--karte);
+    border: 3px solid var(--gold);
+    border-radius: 26px;
+    padding: 18px 22px 20px;
+    margin: 4px 0 14px;
+    max-width: 480px;
+  }
+  .figur-illustration {
+    width: min(60%, 170px);
+  }
+  .figur-illustration svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .geschichte-text {
+    margin: 0;
+    font-size: 1.35rem;
+  }
+
+  @media (max-width: 420px) {
+    h1 { font-size: 1.7rem; }
+    .aufgaben-text { font-size: 1.9rem; }
+    .loesung-wert { font-size: 1.9rem; }
+  }
+</style>
+</head>
+<body>
+<div class="schildband" aria-hidden="true"></div>
+<main id="app" tabindex="-1" aria-live="polite">
+  <div class="lade-hinweis">
+    <p>Die Übung wird geladen …</p>
+    <p class="lade-hinweis-klein">Falls hier nichts erscheint: Diese Seite bitte direkt in <strong>Safari</strong> öffnen, nicht nur in der Dateien-Vorschau.</p>
+  </div>
+</main>
+<noscript>
+  <div class="js-hinweis">
+    Diese Übungswebsite braucht JavaScript.<br>
+    Bitte die Datei in Safari öffnen (nicht nur in der Dateien-Vorschau ansehen).
+  </div>
+</noscript>
+
+<script>
+"use strict";
+
+/* ==========================================================================
+   KONFIGURATION
+   ========================================================================== */
+
+// Reihenfolge der Aufgaben innerhalb eines Blocks:
+// Die Zahlen jeder Aufgabe werden ohnehin bei jedem Start neu ausgewürfelt.
+// Dieser Schalter bestimmt nur die REIHENFOLGE der (neuen) Aufgaben:
+// false = leicht -> schwerer (empfohlen)
+// true  = ganz zufällige Reihenfolge
+const AUFGABEN_REIHENFOLGE_ZUFAELLIG = false;
+
+// Zusatzblock "Zahlenraum bis 100" ein-/ausblenden.
+const ZAHLENRAUM_BIS_100_AKTIV = false;
+
+/* ==========================================================================
+   LOB-SAETZE (am Ende eines Blocks)
+   ========================================================================== */
+const LOB_SAETZE = [
+  "Gut gemacht! Weiter geht's.",
+  "Super, das hast du toll gemacht!",
+  "Klasse gerechnet!",
+  "Fein gemacht, weiter so!"
+];
+
+/* ==========================================================================
+   HILFSFUNKTIONEN (Zufall)
+   ========================================================================== */
+
+function zufallInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function zufallsElement(array) {
+  return array[Math.floor(Math.random() * array.length)];
+}
+
+function mische(array) {
+  const kopie = array.slice();
+  for (let i = kopie.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const tausch = kopie[i];
+    kopie[i] = kopie[j];
+    kopie[j] = tausch;
+  }
+  return kopie;
+}
+
+function mischeUndBegrenze(pool, anzahl) {
+  return mische(pool).slice(0, anzahl);
+}
+
+/* ==========================================================================
+   AUFGABEN-GENERATOREN
+   Jede Funktion würfelt neue Zahlen aus. So sind die Übungen bei jedem
+   Durchlauf anders.
+   ========================================================================== */
+
+// --- Plus bis 20 ------------------------------------------------------
+function generierePlusAufgaben(anzahl) {
+  const gruppen = [
+    { minSumme: 3, maxSumme: 9, menge: 3 },
+    { minSumme: 10, maxSumme: 14, menge: 3 },
+    { minSumme: 15, maxSumme: 20, menge: 2 }
+  ];
+  const ergebnisse = [];
+  const gesehen = new Set();
+  gruppen.forEach(function (gruppe) {
+    let versuche = 0;
+    let erzeugt = 0;
+    while (erzeugt < gruppe.menge && versuche < 300) {
+      versuche++;
+      const summe = zufallInt(gruppe.minSumme, gruppe.maxSumme);
+      const a = zufallInt(1, summe - 1);
+      const b = summe - a;
+      const schluessel = a + "+" + b;
+      if (gesehen.has(schluessel) || gesehen.has(b + "+" + a)) continue;
+      gesehen.add(schluessel);
+      ergebnisse.push({ darstellung: "text", text: a + " + " + b, loesung: String(summe), schwierigkeit: summe });
+      erzeugt++;
+    }
+  });
+  ergebnisse.sort(function (x, y) { return x.schwierigkeit - y.schwierigkeit; });
+  return ergebnisse.slice(0, anzahl);
+}
+
+// --- Minus bis 20 ------------------------------------------------------
+function generiereMinusAufgaben(anzahl) {
+  const gruppen = [
+    { minMinuend: 4, maxMinuend: 9, menge: 3 },
+    { minMinuend: 10, maxMinuend: 15, menge: 3 },
+    { minMinuend: 16, maxMinuend: 20, menge: 2 }
+  ];
+  const ergebnisse = [];
+  const gesehen = new Set();
+  gruppen.forEach(function (gruppe) {
+    let versuche = 0;
+    let erzeugt = 0;
+    while (erzeugt < gruppe.menge && versuche < 300) {
+      versuche++;
+      const a = zufallInt(gruppe.minMinuend, gruppe.maxMinuend);
+      const b = zufallInt(1, a - 1);
+      const schluessel = a + "-" + b;
+      if (gesehen.has(schluessel)) continue;
+      gesehen.add(schluessel);
+      ergebnisse.push({ darstellung: "text", text: a + " − " + b, loesung: String(a - b), schwierigkeit: a });
+      erzeugt++;
+    }
+  });
+  ergebnisse.sort(function (x, y) { return x.schwierigkeit - y.schwierigkeit; });
+  return ergebnisse.slice(0, anzahl);
+}
+
+// --- Mal-Aufgaben (das ganze kleine Einmaleins, 1x1 bis 10x10) ---------
+function generiereMalAufgaben(anzahl) {
+  const pool = [];
+  for (let a = 1; a <= 10; a++) {
+    for (let b = 1; b <= 10; b++) {
+      pool.push({ a: a, b: b, produkt: a * b });
+    }
+  }
+  const auswahl = mischeUndBegrenze(pool, anzahl);
+  auswahl.sort(function (x, y) { return x.produkt - y.produkt; });
+  return auswahl.map(function (aufgabe) {
+    return { darstellung: "text", text: aufgabe.a + " × " + aufgabe.b, loesung: String(aufgabe.produkt) };
+  });
+}
+
+// --- Plus/Minus bis 100 (Zusatzblock) ----------------------------------
+function generierePlusAufgabenBis100(anzahl) {
+  const ergebnisse = [];
+  const gesehen = new Set();
+  let versuche = 0;
+  while (ergebnisse.length < anzahl && versuche < 400) {
+    versuche++;
+    const a = zufallInt(2, 18) * 5;
+    const b = zufallInt(1, 16) * 5;
+    const summe = a + b;
+    if (summe > 100) continue;
+    const schluessel = a + "+" + b;
+    if (gesehen.has(schluessel)) continue;
+    gesehen.add(schluessel);
+    ergebnisse.push({ darstellung: "text", text: a + " + " + b, loesung: String(summe), schwierigkeit: summe });
+  }
+  ergebnisse.sort(function (x, y) { return x.schwierigkeit - y.schwierigkeit; });
+  return ergebnisse;
+}
+
+function generiereMinusAufgabenBis100(anzahl) {
+  const ergebnisse = [];
+  const gesehen = new Set();
+  let versuche = 0;
+  while (ergebnisse.length < anzahl && versuche < 400) {
+    versuche++;
+    const a = zufallInt(4, 20) * 5;
+    const bMax = Math.floor(a / 5) - 1;
+    if (bMax < 1) continue;
+    const b = zufallInt(1, bMax) * 5;
+    if (b <= 0 || b >= a) continue;
+    const schluessel = a + "-" + b;
+    if (gesehen.has(schluessel)) continue;
+    gesehen.add(schluessel);
+    ergebnisse.push({ darstellung: "text", text: a + " − " + b, loesung: String(a - b), schwierigkeit: a });
+  }
+  ergebnisse.sort(function (x, y) { return x.schwierigkeit - y.schwierigkeit; });
+  return ergebnisse;
+}
+
+// --- Geld zählen ---------------------------------------------------------
+const MUENZEN_KLEIN = [5, 10, 20, 50];
+const MUENZEN_ALLE = [5, 10, 20, 50, 100, 200];
+const SCHEINE = [500, 1000];
+
+function formatEuro(cents) {
+  const euro = Math.floor(cents / 100);
+  const rest = cents % 100;
+  return euro + "," + String(rest).padStart(2, "0") + " €";
+}
+
+function formatEuroKurz(cents) {
+  if (cents < 100) return cents + " Ct";
+  return (cents / 100) + " €";
+}
+
+function generiereGeldAufgaben(anzahl) {
+  const gruppen = [
+    { pool: MUENZEN_KLEIN, anzahlMuenzen: 2, mitSchein: false, menge: 2 },
+    { pool: MUENZEN_ALLE, anzahlMuenzen: 3, mitSchein: false, menge: 3 },
+    { pool: MUENZEN_ALLE, anzahlMuenzen: 2, mitSchein: true, menge: 3 }
+  ];
+  const ergebnisse = [];
+  gruppen.forEach(function (gruppe) {
+    for (let i = 0; i < gruppe.menge; i++) {
+      const items = [];
+      for (let n = 0; n < gruppe.anzahlMuenzen; n++) {
+        items.push(zufallsElement(gruppe.pool));
+      }
+      if (gruppe.mitSchein) {
+        items.push(zufallsElement(SCHEINE));
+      }
+      const summe = items.reduce(function (s, v) { return s + v; }, 0);
+      ergebnisse.push({
+        darstellung: "geld",
+        items: items,
+        frage: "Wie viel Geld ist das zusammen?",
+        loesung: formatEuro(summe),
+        schwierigkeit: summe
+      });
+    }
+  });
+  ergebnisse.sort(function (x, y) { return x.schwierigkeit - y.schwierigkeit; });
+  return ergebnisse.slice(0, anzahl);
+}
+
+// --- Uhrzeit ablesen -------------------------------------------------------
+function generiereUhrzeitAufgaben(anzahl) {
+  const stunden = mische([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]).slice(0, anzahl);
+  return stunden.map(function (stunde) {
+    return {
+      darstellung: "uhr",
+      stunde: stunde,
+      frage: "Wie spät ist es?",
+      loesung: stunde + " Uhr"
+    };
+  });
+}
+
+// --- Sachaufgaben (kurze Geschichten) ---------------------------------
+const NAMEN = [
+  { name: "Torvald", gross: "Er", klein: "er" },
+  { name: "Trulla", gross: "Sie", klein: "sie" },
+  { name: "Petri", gross: "Er", klein: "er" },
+  { name: "Amalia", gross: "Sie", klein: "sie" },
+  { name: "Keiler", gross: "Er", klein: "er" }
+];
+const GEGENSTAENDE = [
+  { mehrzahl: "Wildschweine" },
+  { mehrzahl: "Hütten" },
+  { mehrzahl: "Brote" },
+  { mehrzahl: "Kräuter" },
+  { mehrzahl: "Äpfel" },
+  { mehrzahl: "Fässer" }
+];
+
+function generiereSachaufgaben(anzahl) {
+  const ergebnisse = [];
+  const anzahlPlus = Math.ceil(anzahl / 3);
+  const anzahlMinus = Math.ceil(anzahl / 3);
+  const anzahlGeld = Math.max(0, anzahl - anzahlPlus - anzahlMinus);
+
+  for (let i = 0; i < anzahlPlus; i++) {
+    const person = zufallsElement(NAMEN);
+    const gegenstand = zufallsElement(GEGENSTAENDE);
+    const a = zufallInt(3, 9);
+    const b = zufallInt(2, 8);
+    const text =
+      person.name + " hat " + a + " " + gegenstand.mehrzahl + ".\n" +
+      person.gross + " bekommt " + b + " " + gegenstand.mehrzahl + " dazu.\n" +
+      "Wie viele " + gegenstand.mehrzahl + " hat " + person.klein + " jetzt?";
+    ergebnisse.push({ darstellung: "text", text: text, loesung: String(a + b), schwierigkeit: a + b });
+  }
+
+  for (let i = 0; i < anzahlMinus; i++) {
+    const person = zufallsElement(NAMEN);
+    const gegenstand = zufallsElement(GEGENSTAENDE);
+    const a = zufallInt(6, 12);
+    const b = zufallInt(2, a - 1);
+    const text =
+      person.name + " hat " + a + " " + gegenstand.mehrzahl + ".\n" +
+      person.gross + " verschenkt " + b + " " + gegenstand.mehrzahl + ".\n" +
+      "Wie viele " + gegenstand.mehrzahl + " hat " + person.klein + " noch?";
+    ergebnisse.push({ darstellung: "text", text: text, loesung: String(a - b), schwierigkeit: a });
+  }
+
+  for (let i = 0; i < anzahlGeld; i++) {
+    const person = zufallsElement(NAMEN);
+    const a = zufallInt(10, 20);
+    const b = zufallInt(2, a - 3);
+    const text =
+      person.name + " hat " + a + " Euro.\n" +
+      person.gross + " kauft etwas für " + b + " Euro.\n" +
+      "Wie viel Geld hat " + person.klein + " noch?";
+    ergebnisse.push({ darstellung: "text", text: text, loesung: (a - b) + " Euro", schwierigkeit: a });
+  }
+
+  ergebnisse.sort(function (x, y) { return x.schwierigkeit - y.schwierigkeit; });
+  return ergebnisse.slice(0, anzahl);
+}
+
+// --- Gemischte Plus-/Minus-Aufgaben -------------------------------------
+function generiereGemischtAufgaben(anzahl) {
+  const plus = generierePlusAufgaben(Math.ceil(anzahl / 2));
+  const minus = generiereMinusAufgaben(Math.floor(anzahl / 2));
+  const kombi = plus.concat(minus);
+  kombi.sort(function (x, y) { return x.schwierigkeit - y.schwierigkeit; });
+  return kombi.slice(0, anzahl);
+}
+
+/* ==========================================================================
+   BLOCK-DEFINITIONEN
+   ========================================================================== */
+
+const BLOCKS = [
+  {
+    id: "plus20", titel: "Plus-Aufgaben", untertitel: "bis 20", icon: "menhir",
+    anzahl: 8,
+    figur: "bauleiter",
+    diplomTitel: "Bauleiter-Diplom",
+    diplomText: "Du hast im Dorf viele Hütten zusammengezählt!",
+    motivation: [
+      "Baumeister Grobo baut eine neue Halle. Er braucht deine Hilfe beim Zusammenrechnen!",
+      "Grobo sammelt Steine für die Mauer. Hilf ihm, die Steine zusammenzuzählen!",
+      "Der Bauleiter braucht dich. Rechne die Plus-Aufgaben in Ruhe."
+    ],
+    generiere: function () { return generierePlusAufgaben(8); }
+  },
+  {
+    id: "minus20", titel: "Minus-Aufgaben", untertitel: "bis 20", icon: "eber",
+    anzahl: 8,
+    figur: "jaegerin",
+    diplomTitel: "Jäger-Diplom",
+    diplomText: "Du hast super gezählt, wie viele Wildschweine übrig sind!",
+    motivation: [
+      "Jägerin Wilda kommt von der Jagd zurück. Hilf ihr, die Beute zu verteilen!",
+      "Wilda zählt ihre Wildschweine. Rechne die Minus-Aufgaben mit ihr!",
+      "Die Jägerin braucht deine Hilfe. Nimm dir Zeit beim Rechnen."
+    ],
+    generiere: function () { return generiereMinusAufgaben(8); }
+  },
+  {
+    id: "mal", titel: "Mal-Aufgaben", untertitel: "kleines Einmaleins", icon: "schild",
+    anzahl: 8,
+    figur: "haendler",
+    diplomTitel: "Handels-Diplom",
+    diplomText: "Du kannst jetzt super Waren im Dorf verteilen!",
+    motivation: [
+      "Händler Tuvo verteilt Waren im Dorf. Hilf ihm beim Malrechnen!",
+      "Tuvo packt Körbe für den Markt. Rechne die Mal-Aufgaben mit ihm!",
+      "Der Händler braucht deine Hilfe. Du schaffst das!"
+    ],
+    generiere: function () { return generiereMalAufgaben(8); }
+  },
+  {
+    id: "geld", titel: "Geld zählen", untertitel: "Münzen und Scheine", icon: "geld",
+    anzahl: 8,
+    figur: "schatzmeisterin",
+    diplomTitel: "Schatzmeister-Diplom",
+    diplomText: "Du kannst jetzt super mit Geld umgehen!",
+    motivation: [
+      "Schatzmeisterin Fenja zählt die Dorfkasse. Hilf ihr beim Geldzählen!",
+      "Fenja sortiert Münzen und Scheine. Zähl mit ihr zusammen!",
+      "Die Schatzmeisterin braucht deine Hilfe. Schau genau hin."
+    ],
+    generiere: function () { return generiereGeldAufgaben(8); }
+  },
+  {
+    id: "uhrzeit", titel: "Uhrzeit ablesen", untertitel: "volle Stunden", icon: "uhr",
+    anzahl: 8,
+    figur: "zeitwaechter",
+    diplomTitel: "Zeitwächter-Diplom",
+    diplomText: "Du kannst jetzt super die Uhr lesen!",
+    motivation: [
+      "Zeitwächter Bracco schaut auf die große Dorfuhr. Hilf ihm, die Uhrzeit abzulesen!",
+      "Bracco braucht deine Hilfe bei der Uhr. Schau genau, wohin der Zeiger zeigt.",
+      "Der Zeitwächter braucht deine Hilfe. Nimm dir Zeit."
+    ],
+    generiere: function () { return generiereUhrzeitAufgaben(8); }
+  },
+  {
+    id: "sachaufgaben", titel: "Sachaufgaben", untertitel: "kurze Geschichten", icon: "huette",
+    anzahl: 6,
+    figur: "dorfbewohner",
+    diplomTitel: "Trankverkoster-Diplom",
+    diplomText: "Du hast die Geschichten super verstanden und gerechnet!",
+    motivation: [
+      "Im Dorf passiert jeden Tag etwas Neues. Lies die Geschichten genau durch!",
+      "Die Dorfbewohner brauchen deine Hilfe. Überlege genau, was gefragt ist.",
+      "Höre den Geschichten aus dem Dorf zu. Nimm dir Zeit zum Nachdenken."
+    ],
+    generiere: function () { return generiereSachaufgaben(6); }
+  },
+  {
+    id: "gemischt20", titel: "Gemischte Aufgaben", untertitel: "Plus und Minus bis 20", icon: "menhir",
+    anzahl: 8,
+    figur: "dorfaeltester",
+    diplomTitel: "Dorfältesten-Diplom",
+    diplomText: "Du bist ein echter Rechen-Held im Dorf!",
+    motivation: [
+      "Dorfältester Very braucht heute überall Hilfe. Rechne Plus und Minus für ihn!",
+      "Very hat viele Aufgaben. Schau genau hin: Plus oder Minus?",
+      "Der Dorfälteste zählt auf dich. Du kannst schon viel!"
+    ],
+    generiere: function () { return generiereGemischtAufgaben(8); }
+  }
+];
+
+const BLOCK_BIS_100 = {
+  id: "plusminus100", titel: "Plus und Minus", untertitel: "bis 100 (Zusatzaufgabe)", icon: "schild",
+  anzahl: 8,
+  figur: "haeuptling",
+  diplomTitel: "Häuptlings-Diplom",
+  diplomText: "Du rechnest jetzt schon im großen Zahlenraum bis 100!",
+  motivation: [
+    "Der Häuptling zählt auf dich. Jetzt geht's um größere Zahlen.",
+    "Du hilfst bei den großen Vorräten des Dorfes. Rechne in Ruhe, Schritt für Schritt.",
+    "Das ganze Dorf braucht deine Hilfe. Du bist schon richtig gut!"
+  ],
+  generiere: function () {
+    const plus = generierePlusAufgabenBis100(4);
+    const minus = generiereMinusAufgabenBis100(4);
+    const kombi = plus.concat(minus);
+    kombi.sort(function (x, y) { return x.schwierigkeit - y.schwierigkeit; });
+    return kombi;
+  }
+};
+
+if (ZAHLENRAUM_BIS_100_AKTIV) {
+  BLOCKS.push(BLOCK_BIS_100);
+}
+
+/* ==========================================================================
+   STATUS
+   ========================================================================== */
+
+const state = {
+  bildschirm: "start",
+  blockIndex: 0,
+  aufgabenIndex: 0,
+  aktuelleAufgaben: [],
+  loesungSichtbar: false,
+  aktuelleMotivation: ""
+};
+
+/* ==========================================================================
+   TEXT-HILFSFUNKTIONEN
+   ========================================================================== */
+
+function textZuZeilen(text) {
+  return text
+    .split("\n")
+    .map(function (zeile) {
+      return "<span class=\"zeile\">" + escapeHtml(zeile) + "</span>";
+    })
+    .join("");
+}
+
+function escapeHtml(unsicher) {
+  return String(unsicher)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+/* ==========================================================================
+   NAVIGATION
+   ========================================================================== */
+
+function geheZurStartseite() {
+  state.bildschirm = "start";
+  render();
+}
+
+function waehleBlock(index) {
+  const block = BLOCKS[index];
+  state.blockIndex = index;
+  state.aktuelleMotivation = zufallsElement(block.motivation);
+  state.bildschirm = "blockIntro";
+  render();
+}
+
+function starteBlock() {
+  const block = BLOCKS[state.blockIndex];
+  let aufgaben = block.generiere();
+  if (AUFGABEN_REIHENFOLGE_ZUFAELLIG) {
+    aufgaben = mische(aufgaben);
+  }
+  state.aktuelleAufgaben = aufgaben;
+  state.aufgabenIndex = 0;
+  state.loesungSichtbar = false;
+  state.bildschirm = "aufgabe";
+  render();
+}
+
+function zeigeLoesung() {
+  state.loesungSichtbar = true;
+  render();
+}
+
+function naechsteAufgabe() {
+  if (state.aufgabenIndex < state.aktuelleAufgaben.length - 1) {
+    state.aufgabenIndex += 1;
+    state.loesungSichtbar = false;
+    render();
+  } else {
+    state.bildschirm = "blockEnde";
+    render();
+  }
+}
+
+function vorherigeAufgabe() {
+  if (state.aufgabenIndex > 0) {
+    state.aufgabenIndex -= 1;
+    state.loesungSichtbar = false;
+    render();
+  }
+}
+
+/* ==========================================================================
+   RENDERING
+   ========================================================================== */
+
+const app = document.getElementById("app");
+
+function render() {
+  if (state.bildschirm === "start") {
+    renderStart();
+  } else if (state.bildschirm === "blockIntro") {
+    renderBlockIntro();
+  } else if (state.bildschirm === "aufgabe") {
+    renderAufgabe();
+  } else if (state.bildschirm === "blockEnde") {
+    renderBlockEnde();
+  }
+  app.focus();
+}
+
+function renderStart() {
+  let kacheln = "";
+  for (let i = 0; i < BLOCKS.length; i++) {
+    const block = BLOCKS[i];
+    kacheln +=
+      "<button class=\"block-kachel\" data-index=\"" + i + "\">" +
+      "<span class=\"block-icon\">" + iconSvg(block.icon) + "</span>" +
+      "<span class=\"block-kachel-text\">" +
+      "<span class=\"block-kachel-titel\">" + escapeHtml(block.titel) + "</span>" +
+      "<span class=\"block-kachel-untertitel\">" + escapeHtml(block.untertitel) + "</span>" +
+      "</span>" +
+      "</button>";
+  }
+
+  app.innerHTML =
+    "<div class=\"screen start-screen\">" +
+    "<div class=\"dorf-illustration\">" + iconSvg("dorf") + "</div>" +
+    "<h1>Matheübungen<br>im Gallischen Dorf</h1>" +
+    "<p class=\"start-text\">Suche dir eine Übung aus.</p>" +
+    "<div class=\"block-liste\">" + kacheln + "</div>" +
+    "</div>";
+
+  const kachelKnoepfe = app.querySelectorAll(".block-kachel");
+  kachelKnoepfe.forEach(function (knopf) {
+    knopf.addEventListener("click", function () {
+      const index = parseInt(knopf.getAttribute("data-index"), 10);
+      waehleBlock(index);
+    });
+  });
+}
+
+function renderBlockIntro() {
+  const block = BLOCKS[state.blockIndex];
+  app.innerHTML =
+    "<div class=\"screen intro-screen\">" +
+    "<div class=\"geschichte-karte\">" +
+    "<div class=\"figur-illustration\">" + figurSvg(block.figur) + "</div>" +
+    "<p class=\"geschichte-text\">" + escapeHtml(state.aktuelleMotivation) + "</p>" +
+    "</div>" +
+    "<h1>" + escapeHtml(block.titel) + "</h1>" +
+    "<p class=\"intro-untertitel\">" + escapeHtml(block.untertitel) + "</p>" +
+    "<p class=\"intro-anzahl\">" + block.anzahl + " Aufgaben</p>" +
+    "<div class=\"knopf-reihe\">" +
+    "<button class=\"knopf knopf-sekundaer\" id=\"btn-zurueck-start\">Zurück</button>" +
+    "<button class=\"knopf knopf-primaer\" id=\"btn-start-block\">Los geht's</button>" +
+    "</div>" +
+    "</div>";
+
+  document.getElementById("btn-zurueck-start").addEventListener("click", geheZurStartseite);
+  document.getElementById("btn-start-block").addEventListener("click", starteBlock);
+}
+
+function renderAufgabe() {
+  const aufgabe = state.aktuelleAufgaben[state.aufgabenIndex];
+  const nummer = state.aufgabenIndex + 1;
+  const gesamt = state.aktuelleAufgaben.length;
+  const prozent = Math.round((nummer / gesamt) * 100);
+
+  let inhaltHtml;
+  if (aufgabe.darstellung === "geld") {
+    let muenzenHtml = "";
+    aufgabe.items.forEach(function (cent) {
+      muenzenHtml += "<span class=\"geld-symbol\">" + muenzeSvg(cent) + "</span>";
+    });
+    inhaltHtml =
+      "<div class=\"geld-reihe\">" + muenzenHtml + "</div>" +
+      "<p class=\"frage-satz\">" + escapeHtml(aufgabe.frage) + "</p>";
+  } else if (aufgabe.darstellung === "uhr") {
+    inhaltHtml =
+      "<div class=\"uhr-illustration\">" + uhrSvg(aufgabe.stunde) + "</div>" +
+      "<p class=\"frage-satz\">" + escapeHtml(aufgabe.frage) + "</p>";
+  } else {
+    inhaltHtml = "<p class=\"aufgaben-text\">" + textZuZeilen(aufgabe.text) + "</p>";
+  }
+
+  const loesungBereich = state.loesungSichtbar
+    ? "<div class=\"loesung-box\" role=\"status\">" +
+      "<span class=\"loesung-label\">Lösung</span>" +
+      "<span class=\"loesung-wert\">" + escapeHtml(aufgabe.loesung) + "</span>" +
+      "</div>"
+    : "<button class=\"knopf knopf-loesung\" id=\"btn-loesung\">Lösung zeigen</button>";
+
+  app.innerHTML =
+    "<div class=\"screen aufgabe-screen\">" +
+    "<div class=\"fortschritt-bereich\">" +
+    "<p class=\"fortschritt-text\">Aufgabe " + nummer + " von " + gesamt + "</p>" +
+    "<div class=\"fortschritt-balken\"><div class=\"fortschritt-fuellung\" style=\"width:" + prozent + "%\"></div></div>" +
+    "</div>" +
+    "<div class=\"aufgaben-karte\">" + inhaltHtml + loesungBereich + "</div>" +
+    "<div class=\"knopf-reihe\">" +
+    "<button class=\"knopf knopf-sekundaer\" id=\"btn-vorherige\"" + (state.aufgabenIndex === 0 ? " disabled" : "") + ">Zurück</button>" +
+    "<button class=\"knopf knopf-primaer\" id=\"btn-naechste\">Weiter</button>" +
+    "</div>" +
+    "</div>";
+
+  const loesungKnopf = document.getElementById("btn-loesung");
+  if (loesungKnopf) {
+    loesungKnopf.addEventListener("click", zeigeLoesung);
+  }
+  document.getElementById("btn-vorherige").addEventListener("click", vorherigeAufgabe);
+  document.getElementById("btn-naechste").addEventListener("click", naechsteAufgabe);
+}
+
+function renderBlockEnde() {
+  const block = BLOCKS[state.blockIndex];
+  const lob = zufallsElement(LOB_SAETZE);
+
+  app.innerHTML =
+    "<div class=\"screen ende-screen\">" +
+    "<div class=\"diplom-karte\">" +
+    "<div class=\"diplom-kranz\">" + iconSvg("kranz") + "</div>" +
+    "<h1>" + escapeHtml(block.diplomTitel) + "</h1>" +
+    "<p class=\"diplom-text\">" + escapeHtml(block.diplomText) + "</p>" +
+    "<p class=\"lob-text\">" + escapeHtml(lob) + "</p>" +
+    "</div>" +
+    "<button class=\"knopf knopf-primaer\" id=\"btn-zur-uebersicht\">Zurück zur Übersicht</button>" +
+    "</div>";
+
+  document.getElementById("btn-zur-uebersicht").addEventListener("click", geheZurStartseite);
+}
+
+/* ==========================================================================
+   SVG: GELD (Münzen und Scheine)
+   ========================================================================== */
+
+function muenzeSvg(cents) {
+  const label = formatEuroKurz(cents);
+  if (cents >= 500) {
+    return "<svg viewBox=\"0 0 170 100\" aria-hidden=\"true\">" +
+      "<rect x=\"5\" y=\"10\" width=\"160\" height=\"80\" rx=\"10\" fill=\"var(--schein-farbe)\" stroke=\"var(--schein-dunkel)\" stroke-width=\"4\"/>" +
+      "<rect x=\"15\" y=\"20\" width=\"140\" height=\"60\" rx=\"6\" fill=\"none\" stroke=\"var(--schein-dunkel)\" stroke-width=\"2\" opacity=\"0.5\"/>" +
+      "<text x=\"85\" y=\"62\" text-anchor=\"middle\" font-size=\"32\" font-weight=\"bold\" fill=\"var(--schein-dunkel)\">" + label + "</text>" +
+      "</svg>";
+  }
+  const istGold = cents >= 100;
+  const farbe = istGold ? "var(--muenze-gold)" : "var(--muenze-silber)";
+  const randfarbe = istGold ? "var(--muenze-gold-dunkel)" : "var(--muenze-silber-dunkel)";
+  return "<svg viewBox=\"0 0 100 100\" aria-hidden=\"true\">" +
+    "<circle cx=\"50\" cy=\"50\" r=\"44\" fill=\"" + farbe + "\" stroke=\"" + randfarbe + "\" stroke-width=\"4\"/>" +
+    "<circle cx=\"50\" cy=\"50\" r=\"34\" fill=\"none\" stroke=\"" + randfarbe + "\" stroke-width=\"2\" opacity=\"0.5\"/>" +
+    "<text x=\"50\" y=\"60\" text-anchor=\"middle\" font-size=\"20\" font-weight=\"bold\" fill=\"" + randfarbe + "\">" + label + "</text>" +
+    "</svg>";
+}
+
+/* ==========================================================================
+   SVG: UHR
+   ========================================================================== */
+
+function uhrZifferblattSvg() {
+  let ziffern = "";
+  for (let i = 1; i <= 12; i++) {
+    const winkel = (i * 30 - 90) * Math.PI / 180;
+    const x = 100 + 78 * Math.cos(winkel);
+    const y = 100 + 78 * Math.sin(winkel);
+    ziffern += "<text x=\"" + x.toFixed(1) + "\" y=\"" + (y + 7).toFixed(1) + "\" text-anchor=\"middle\" font-size=\"18\" font-weight=\"bold\" fill=\"var(--uhr-ziffern)\">" + i + "</text>";
+  }
+  return "<circle cx=\"100\" cy=\"100\" r=\"92\" fill=\"var(--uhr-flaeche)\" stroke=\"var(--uhr-rand)\" stroke-width=\"6\"/>" + ziffern;
+}
+
+function uhrZeiger(stunde) {
+  const winkel = (stunde % 12) * 30 - 90;
+  const laenge = 52;
+  const x2 = 100 + laenge * Math.cos(winkel * Math.PI / 180);
+  const y2 = 100 + laenge * Math.sin(winkel * Math.PI / 180);
+  return "<line x1=\"100\" y1=\"100\" x2=\"" + x2.toFixed(1) + "\" y2=\"" + y2.toFixed(1) + "\" stroke=\"var(--uhr-zeiger)\" stroke-width=\"8\" stroke-linecap=\"round\"/>" +
+    "<line x1=\"100\" y1=\"100\" x2=\"100\" y2=\"38\" stroke=\"var(--uhr-minuten)\" stroke-width=\"4\" stroke-linecap=\"round\"/>" +
+    "<circle cx=\"100\" cy=\"100\" r=\"7\" fill=\"var(--uhr-zeiger)\"/>";
+}
+
+function uhrSvg(stunde) {
+  return "<svg viewBox=\"0 0 200 200\" aria-hidden=\"true\">" + uhrZifferblattSvg() + uhrZeiger(stunde) + "</svg>";
+}
+
+/* ==========================================================================
+   SVG: DORF-FIGUREN
+   Eigene, selbst gezeichnete Charaktere (kein urheberrechtlich geschütztes
+   Material). Jede Figur hat einen eigenen Beruf im Dorf und ein eigenes
+   Erkennungsmerkmal (Zubehör), nicht Gesichtszüge bekannter Comicfiguren.
+   ========================================================================== */
+
+function figurKoerper(tunikaFarbe) {
+  return (
+    "<ellipse cx=\"100\" cy=\"186\" rx=\"66\" ry=\"9\" fill=\"var(--schatten)\"/>" +
+    "<rect x=\"80\" y=\"148\" width=\"16\" height=\"34\" rx=\"6\" fill=\"var(--figur-haut-dunkel)\"/>" +
+    "<rect x=\"104\" y=\"148\" width=\"16\" height=\"34\" rx=\"6\" fill=\"var(--figur-haut-dunkel)\"/>" +
+    "<path d=\"M62 92 C62 70 80 56 100 56 C120 56 138 70 138 92 L148 154 C148 165 128 170 100 170 C72 170 52 165 52 154 Z\" fill=\"" + tunikaFarbe + "\" stroke=\"var(--figur-kontur)\" stroke-width=\"4\"/>" +
+    "<rect x=\"58\" y=\"118\" width=\"84\" height=\"12\" fill=\"var(--figur-guertel)\"/>" +
+    "<circle cx=\"50\" cy=\"112\" r=\"14\" fill=\"" + tunikaFarbe + "\" stroke=\"var(--figur-kontur)\" stroke-width=\"3\"/>" +
+    "<circle cx=\"150\" cy=\"112\" r=\"14\" fill=\"" + tunikaFarbe + "\" stroke=\"var(--figur-kontur)\" stroke-width=\"3\"/>" +
+    "<circle cx=\"100\" cy=\"48\" r=\"34\" fill=\"var(--figur-haut)\" stroke=\"var(--figur-kontur)\" stroke-width=\"4\"/>" +
+    "<circle cx=\"88\" cy=\"45\" r=\"3.5\" fill=\"var(--figur-kontur)\"/>" +
+    "<circle cx=\"112\" cy=\"45\" r=\"3.5\" fill=\"var(--figur-kontur)\"/>" +
+    "<path d=\"M86 59 Q100 69 114 59\" stroke=\"var(--figur-kontur)\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/>"
+  );
+}
+
+function figurSvg(typ) {
+  const figuren = {
+    bauleiter: {
+      farbe: "var(--tunika-bau)",
+      zubehoer:
+        "<path d=\"M64 28 C64 10 136 10 136 28 L142 33 L58 33 Z\" fill=\"var(--zubehoer-bau)\" stroke=\"var(--figur-kontur)\" stroke-width=\"3\"/>" +
+        "<rect x=\"58\" y=\"30\" width=\"84\" height=\"8\" rx=\"3\" fill=\"var(--zubehoer-bau)\" stroke=\"var(--figur-kontur)\" stroke-width=\"2\"/>"
+    },
+    jaegerin: {
+      farbe: "var(--tunika-jagd)",
+      zubehoer:
+        "<path d=\"M152 92 C172 98 172 128 152 134\" stroke=\"var(--figur-holz)\" stroke-width=\"5\" fill=\"none\" stroke-linecap=\"round\"/>" +
+        "<line x1=\"152\" y1=\"92\" x2=\"152\" y2=\"134\" stroke=\"var(--figur-kontur)\" stroke-width=\"2\"/>"
+    },
+    haendler: {
+      farbe: "var(--tunika-handel)",
+      zubehoer:
+        "<path d=\"M72 128 L128 128 L120 156 L80 156 Z\" fill=\"var(--zubehoer-korb)\" stroke=\"var(--figur-kontur)\" stroke-width=\"3\"/>" +
+        "<path d=\"M78 128 C78 116 122 116 122 128\" stroke=\"var(--figur-kontur)\" stroke-width=\"3\" fill=\"none\"/>"
+    },
+    schatzmeisterin: {
+      farbe: "var(--tunika-schatz)",
+      zubehoer:
+        "<ellipse cx=\"100\" cy=\"140\" rx=\"17\" ry=\"15\" fill=\"var(--muenze-gold)\" stroke=\"var(--muenze-gold-dunkel)\" stroke-width=\"3\"/>" +
+        "<path d=\"M91 128 Q100 121 109 128\" stroke=\"var(--figur-kontur)\" stroke-width=\"2\" fill=\"none\"/>" +
+        "<text x=\"100\" y=\"145\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"bold\" fill=\"var(--muenze-gold-dunkel)\">€</text>"
+    },
+    zeitwaechter: {
+      farbe: "var(--tunika-zeit)",
+      zubehoer:
+        "<circle cx=\"100\" cy=\"100\" r=\"17\" fill=\"var(--uhr-flaeche)\" stroke=\"var(--uhr-rand)\" stroke-width=\"3\"/>" +
+        "<line x1=\"100\" y1=\"100\" x2=\"100\" y2=\"89\" stroke=\"var(--uhr-zeiger)\" stroke-width=\"2\" stroke-linecap=\"round\"/>" +
+        "<line x1=\"100\" y1=\"100\" x2=\"109\" y2=\"100\" stroke=\"var(--uhr-zeiger)\" stroke-width=\"2\" stroke-linecap=\"round\"/>"
+    },
+    dorfaeltester: {
+      farbe: "var(--tunika-rat)",
+      zubehoer:
+        "<line x1=\"152\" y1=\"74\" x2=\"152\" y2=\"164\" stroke=\"var(--figur-holz)\" stroke-width=\"5\" stroke-linecap=\"round\"/>" +
+        "<circle cx=\"152\" cy=\"72\" r=\"7\" fill=\"var(--zubehoer-bau)\" stroke=\"var(--figur-kontur)\" stroke-width=\"2\"/>" +
+        "<path d=\"M78 22 C90 12 110 12 122 22\" stroke=\"var(--kranz-gruen)\" stroke-width=\"5\" fill=\"none\" stroke-linecap=\"round\"/>"
+    },
+    haeuptling: {
+      farbe: "var(--tunika-rat)",
+      zubehoer:
+        "<path d=\"M74 20 C86 6 114 6 126 20 L120 30 C110 22 90 22 80 30 Z\" fill=\"var(--zubehoer-bau)\" stroke=\"var(--figur-kontur)\" stroke-width=\"3\"/>" +
+        "<circle cx=\"100\" cy=\"14\" r=\"5\" fill=\"var(--tunika-schatz)\" stroke=\"var(--figur-kontur)\" stroke-width=\"2\"/>"
+    },
+    dorfbewohner: {
+      farbe: "var(--tunika-dorf)",
+      zubehoer:
+        "<path d=\"M74 92 L126 92 L118 108 L82 108 Z\" fill=\"var(--zubehoer-korb)\" stroke=\"var(--figur-kontur)\" stroke-width=\"2\" opacity=\"0.85\"/>"
+    }
+  };
+  const daten = figuren[typ] || figuren.dorfbewohner;
+  return "<svg viewBox=\"0 0 200 195\" aria-hidden=\"true\">" + figurKoerper(daten.farbe) + daten.zubehoer + "</svg>";
+}
+
+/* ==========================================================================
+   SVG-ICONS (selbst gezeichnet, kein urheberrechtlich geschütztes Material)
+   ========================================================================== */
+
+function iconSvg(name) {
+  const icons = {
+    menhir:
+      "<svg viewBox=\"0 0 120 140\" aria-hidden=\"true\">" +
+      "<ellipse cx=\"60\" cy=\"128\" rx=\"42\" ry=\"9\" fill=\"var(--schatten)\"/>" +
+      "<path d=\"M35 120 C30 90 28 60 40 25 C46 10 74 10 80 25 C92 60 90 90 85 120 Z\" fill=\"var(--stein)\" stroke=\"var(--stein-dunkel)\" stroke-width=\"4\"/>" +
+      "<path d=\"M48 40 C52 55 50 75 46 95\" stroke=\"var(--stein-dunkel)\" stroke-width=\"3\" fill=\"none\" opacity=\"0.5\"/>" +
+      "<path d=\"M70 35 C74 55 72 80 76 105\" stroke=\"var(--stein-dunkel)\" stroke-width=\"3\" fill=\"none\" opacity=\"0.5\"/>" +
+      "</svg>",
+    eber:
+      "<svg viewBox=\"0 0 160 120\" aria-hidden=\"true\">" +
+      "<ellipse cx=\"80\" cy=\"108\" rx=\"55\" ry=\"8\" fill=\"var(--schatten)\"/>" +
+      "<path d=\"M25 70 C20 45 45 30 75 32 C100 33 120 40 132 50 C140 55 140 65 130 68 L120 70 C122 80 118 92 108 96 L100 96 C102 88 98 82 92 82 L55 82 C48 82 42 88 42 96 L32 96 C28 88 28 78 32 70 Z\" fill=\"var(--eber-braun)\" stroke=\"var(--eber-dunkel)\" stroke-width=\"3\"/>" +
+      "<path d=\"M118 55 L138 48 L128 62 Z\" fill=\"var(--eber-braun)\" stroke=\"var(--eber-dunkel)\" stroke-width=\"3\"/>" +
+      "<circle cx=\"128\" cy=\"56\" r=\"3.5\" fill=\"var(--eber-dunkel)\"/>" +
+      "<path d=\"M134 60 L146 58 L138 66 Z\" fill=\"#f4ede1\" stroke=\"var(--eber-dunkel)\" stroke-width=\"2\"/>" +
+      "<path d=\"M60 34 L64 20 L70 34 M78 33 L82 18 L88 33\" stroke=\"var(--eber-dunkel)\" stroke-width=\"4\" fill=\"none\" stroke-linecap=\"round\"/>" +
+      "<path d=\"M45 96 L45 108 M60 96 L60 108 M95 96 L95 108 M110 96 L110 108\" stroke=\"var(--eber-dunkel)\" stroke-width=\"6\" stroke-linecap=\"round\"/>" +
+      "</svg>",
+    schild:
+      "<svg viewBox=\"0 0 120 140\" aria-hidden=\"true\">" +
+      "<path d=\"M60 8 L108 24 L108 70 C108 105 85 125 60 134 C35 125 12 105 12 70 L12 24 Z\" fill=\"var(--schild-gold)\" stroke=\"var(--schild-dunkel)\" stroke-width=\"5\"/>" +
+      "<path d=\"M60 20 L96 32 L96 70 C96 96 80 112 60 120 C40 112 24 96 24 70 L24 32 Z\" fill=\"none\" stroke=\"var(--schild-dunkel)\" stroke-width=\"3\"/>" +
+      "<circle cx=\"60\" cy=\"66\" r=\"14\" fill=\"none\" stroke=\"var(--schild-dunkel)\" stroke-width=\"4\"/>" +
+      "<path d=\"M60 20 L60 120 M28 45 L92 45\" stroke=\"var(--schild-dunkel)\" stroke-width=\"3\" opacity=\"0.6\"/>" +
+      "</svg>",
+    huette:
+      "<svg viewBox=\"0 0 140 120\" aria-hidden=\"true\">" +
+      "<ellipse cx=\"70\" cy=\"110\" rx=\"58\" ry=\"8\" fill=\"var(--schatten)\"/>" +
+      "<rect x=\"30\" y=\"55\" width=\"80\" height=\"48\" rx=\"4\" fill=\"var(--huette-wand)\" stroke=\"var(--huette-dunkel)\" stroke-width=\"4\"/>" +
+      "<path d=\"M15 60 L70 15 L125 60 Z\" fill=\"var(--huette-dach)\" stroke=\"var(--huette-dunkel)\" stroke-width=\"4\" stroke-linejoin=\"round\"/>" +
+      "<rect x=\"58\" y=\"72\" width=\"24\" height=\"31\" rx=\"2\" fill=\"var(--huette-tuer)\" stroke=\"var(--huette-dunkel)\" stroke-width=\"3\"/>" +
+      "<circle cx=\"70\" cy=\"20\" r=\"6\" fill=\"var(--huette-dunkel)\"/>" +
+      "</svg>",
+    geld:
+      "<svg viewBox=\"0 0 140 120\" aria-hidden=\"true\">" +
+      "<ellipse cx=\"70\" cy=\"108\" rx=\"55\" ry=\"8\" fill=\"var(--schatten)\"/>" +
+      "<circle cx=\"50\" cy=\"60\" r=\"38\" fill=\"var(--muenze-gold)\" stroke=\"var(--muenze-gold-dunkel)\" stroke-width=\"4\"/>" +
+      "<text x=\"50\" y=\"70\" text-anchor=\"middle\" font-size=\"26\" font-weight=\"bold\" fill=\"var(--muenze-gold-dunkel)\">€</text>" +
+      "<circle cx=\"95\" cy=\"40\" r=\"26\" fill=\"var(--muenze-silber)\" stroke=\"var(--muenze-silber-dunkel)\" stroke-width=\"4\"/>" +
+      "<text x=\"95\" y=\"48\" text-anchor=\"middle\" font-size=\"17\" font-weight=\"bold\" fill=\"var(--muenze-silber-dunkel)\">ct</text>" +
+      "</svg>",
+    uhr: uhrSvg(10),
+    dorf:
+      "<svg viewBox=\"0 0 320 160\" aria-hidden=\"true\">" +
+      "<ellipse cx=\"160\" cy=\"148\" rx=\"150\" ry=\"10\" fill=\"var(--schatten)\"/>" +
+      "<g transform=\"translate(10,20) scale(0.75)\">" + huetteInner() + "</g>" +
+      "<g transform=\"translate(150,10) scale(0.95)\">" + huetteInner() + "</g>" +
+      "<g transform=\"translate(255,30) scale(0.65)\">" + huetteInner() + "</g>" +
+      "<g transform=\"translate(15,70) scale(0.5)\">" + menhirInner() + "</g>" +
+      "<g transform=\"translate(270,90) scale(0.45)\">" + menhirInner() + "</g>" +
+      "</svg>",
+    kranz:
+      "<svg viewBox=\"0 0 160 100\" aria-hidden=\"true\">" +
+      "<path d=\"M20 90 C-5 60 5 20 45 15 C40 30 42 45 50 55\" fill=\"none\" stroke=\"var(--kranz-gruen)\" stroke-width=\"8\" stroke-linecap=\"round\"/>" +
+      "<path d=\"M140 90 C165 60 155 20 115 15 C120 30 118 45 110 55\" fill=\"none\" stroke=\"var(--kranz-gruen)\" stroke-width=\"8\" stroke-linecap=\"round\"/>" +
+      "<g fill=\"var(--kranz-gruen)\">" +
+      "<ellipse cx=\"18\" cy=\"72\" rx=\"10\" ry=\"5\" transform=\"rotate(-30 18 72)\"/>" +
+      "<ellipse cx=\"10\" cy=\"50\" rx=\"10\" ry=\"5\" transform=\"rotate(-10 10 50)\"/>" +
+      "<ellipse cx=\"20\" cy=\"30\" rx=\"10\" ry=\"5\" transform=\"rotate(20 20 30)\"/>" +
+      "<ellipse cx=\"142\" cy=\"72\" rx=\"10\" ry=\"5\" transform=\"rotate(30 142 72)\"/>" +
+      "<ellipse cx=\"150\" cy=\"50\" rx=\"10\" ry=\"5\" transform=\"rotate(10 150 50)\"/>" +
+      "<ellipse cx=\"140\" cy=\"30\" rx=\"10\" ry=\"5\" transform=\"rotate(-20 140 30)\"/>" +
+      "</g>" +
+      "<circle cx=\"80\" cy=\"50\" r=\"34\" fill=\"var(--schild-gold)\" stroke=\"var(--schild-dunkel)\" stroke-width=\"4\"/>" +
+      "<path d=\"M62 52 L74 64 L100 36\" fill=\"none\" stroke=\"var(--schild-dunkel)\" stroke-width=\"6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>" +
+      "</svg>"
+  };
+  return icons[name] || "";
+}
+
+function huetteInner() {
+  return (
+    "<rect x=\"30\" y=\"55\" width=\"80\" height=\"48\" rx=\"4\" fill=\"var(--huette-wand)\" stroke=\"var(--huette-dunkel)\" stroke-width=\"4\"/>" +
+    "<path d=\"M15 60 L70 15 L125 60 Z\" fill=\"var(--huette-dach)\" stroke=\"var(--huette-dunkel)\" stroke-width=\"4\" stroke-linejoin=\"round\"/>" +
+    "<rect x=\"58\" y=\"72\" width=\"24\" height=\"31\" rx=\"2\" fill=\"var(--huette-tuer)\" stroke=\"var(--huette-dunkel)\" stroke-width=\"3\"/>"
+  );
+}
+
+function menhirInner() {
+  return (
+    "<path d=\"M35 120 C30 90 28 60 40 25 C46 10 74 10 80 25 C92 60 90 90 85 120 Z\" fill=\"var(--stein)\" stroke=\"var(--stein-dunkel)\" stroke-width=\"4\"/>"
+  );
+}
+
+/* ==========================================================================
+   START
+   ========================================================================== */
+
+try {
+  render();
+} catch (fehler) {
+  app.innerHTML =
+    "<div class=\"js-hinweis\">" +
+    "Es gab ein Problem beim Laden.<br>" +
+    "Bitte die Datei in Safari öffnen (nicht nur in der Dateien-Vorschau ansehen)." +
+    "</div>";
+}
+
+</script>
+</body>
+</html>
