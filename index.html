@@ -1,16 +1,241 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <title>Meine erste Webseite</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Religionsunterricht – Lerneinheiten</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root {
+    --paper: #FAF7F0;
+    --ink: #24303D;
+    --ink-soft: #4C5A68;
+    --gold: #B08D3E;
+    --gold-line: #DDD0AE;
+    --sage: #6E8266;
+    --card-bg: #FFFFFF;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Iowan Old Style", "Palatino Linotype", Georgia, "Noto Serif", serif;
+  }
+
+  body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 48px 20px 80px;
+  }
+
+  header {
+    width: 100%;
+    max-width: 760px;
+    text-align: left;
+    margin-bottom: 40px;
+    border-bottom: 1px solid var(--gold-line);
+    padding-bottom: 24px;
+  }
+
+  .kicker {
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 13px;
+    color: var(--sage);
+    letter-spacing: 0.02em;
+    margin: 0 0 8px;
+  }
+
+  h1 {
+    font-size: clamp(28px, 5vw, 38px);
+    font-weight: 600;
+    margin: 0 0 10px;
+    line-height: 1.2;
+  }
+
+  header p {
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    color: var(--ink-soft);
+    font-size: 15px;
+    max-width: 60ch;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  main {
+    width: 100%;
+    max-width: 760px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .unit {
+    background: var(--card-bg);
+    border: 1px solid var(--gold-line);
+    border-radius: 4px;
+    padding: 22px 24px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .unit-text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .unit-text h2 {
+    font-size: 19px;
+    font-weight: 600;
+    margin: 0 0 6px;
+  }
+
+  .unit-text h2 a {
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px solid var(--gold);
+  }
+
+  .unit-text h2 a:hover { color: var(--gold); }
+
+  .unit-text p {
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    color: var(--ink-soft);
+    font-size: 14px;
+    line-height: 1.5;
+    margin: 0 0 10px;
+  }
+
+  .unit-link {
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 12.5px;
+    color: var(--sage);
+    word-break: break-all;
+  }
+
+  .qr-box {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .qr-box canvas, .qr-box img {
+    display: block;
+    border: 1px solid var(--gold-line);
+    border-radius: 3px;
+    padding: 4px;
+    background: #fff;
+  }
+
+  .qr-box span {
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 10.5px;
+    color: var(--ink-soft);
+    letter-spacing: 0.03em;
+  }
+
+  .empty-hint {
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    color: var(--ink-soft);
+    font-size: 14px;
+    border: 1px dashed var(--gold-line);
+    border-radius: 4px;
+    padding: 20px 24px;
+  }
+
+  footer {
+    width: 100%;
+    max-width: 760px;
+    margin-top: 40px;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 12px;
+    color: var(--ink-soft);
+    border-top: 1px solid var(--gold-line);
+    padding-top: 16px;
+  }
+
+  @media (max-width: 520px) {
+    .unit { flex-direction: column; align-items: flex-start; }
+    .qr-box { align-self: center; }
+  }
+</style>
 </head>
 <body>
-    <h1>Hallo Welt!</h1>
-    <p>Meine GitHub-Pages-Seite funktioniert.</p>
+
+<header>
+  <p class="kicker">Religionsunterricht · 8. Klasse</p>
+  <h1>Lerneinheiten</h1>
+  <p>Diese Seite ist die Übersicht für alle interaktiven Lerneinheiten. Jede Einheit hat einen eigenen Link und einen eigenen QR-Code zum Scannen.</p>
+</header>
+
+<main id="unit-list"></main>
+
+<footer>
+  Diese Seite wird über GitHub Pages gehostet.
+</footer>
+
+<script>
+  // ================================================================
+  // ===========   NEUE EINHEITEN HIER EINFÜGEN   ===================
+  // ================================================================
+  // Für jede Lerneinheit eine Zeile nach diesem Muster hinzufügen:
+  //   title  – Titel der Einheit
+  //   desc   – kurze Beschreibung (optional, kann leer sein: "")
+  //   href   – Dateiname/Pfad der Unterseite, relativ zu dieser index.html
+  //            z.B. "einheit-1.html" oder "lektionen/thema-x.html"
+  // Nicht vergessen: Komma am Ende jeder Zeile außer der letzten.
+  const units = [
+    { title: "Mathe-Übung 1", desc: "", href: "mathe-uebung_1.html" },
+    { title: "Einheit 2 – Beispiel", desc: "Kurze Beschreibung der Lerneinheit.", href: "einheit-2.html" },
+    // 👉 neue Einträge HIER einfügen 👈
+  ];
+  // ================================================================
+  // ===========   ENDE: NEUE EINHEITEN EINFÜGEN   ==================
+  // ================================================================
+
+  const list = document.getElementById("unit-list");
+
+  if (units.length === 0) {
+    list.innerHTML = '<div class="empty-hint">Noch keine Lerneinheiten eingetragen. Im Quellcode der Seite (Abschnitt „HIER EINHEITEN EINTRAGEN“) einfach Einträge zum <code>units</code>-Array hinzufügen.</div>';
+  } else {
+    units.forEach((unit, i) => {
+      const fullUrl = new URL(unit.href, window.location.href).href;
+
+      const el = document.createElement("div");
+      el.className = "unit";
+      el.innerHTML = `
+        <div class="unit-text">
+          <h2><a href="${unit.href}">${unit.title}</a></h2>
+          ${unit.desc ? `<p>${unit.desc}</p>` : ""}
+          <div class="unit-link">${fullUrl}</div>
+        </div>
+        <div class="qr-box" id="qr-${i}">
+          <span>Scannen</span>
+        </div>
+      `;
+      list.appendChild(el);
+
+      new QRCode(document.getElementById(`qr-${i}`), {
+        text: fullUrl,
+        width: 96,
+        height: 96,
+        colorDark: "#24303D",
+        colorLight: "#ffffff",
+      });
+      // Label unter den QR-Code verschieben (QRCode.js hängt das Canvas an)
+      const box = document.getElementById(`qr-${i}`);
+      box.appendChild(box.firstChild);
+    });
+  }
+</script>
+
 </body>
 </html>
-<nav>
-    <a href="index.html">Startseite</a> | 
-    <a href="mathe-uebung_1.html">mathe-uebung_1.html</a> | 
-   
-</nav>
